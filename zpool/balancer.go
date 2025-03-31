@@ -36,7 +36,7 @@ type Balancer[T any] struct {
 
 type balancerNode[T any] struct {
 	node     T
-	total    atomic.Int64
+	total    *zutil.Int64
 	max      int64
 	weight   uint64
 	failedAt *zutil.Int64
@@ -88,6 +88,7 @@ func (b *Balancer[T]) Add(key string, node T, opt ...func(opts *BalancerNodeOpti
 		node:     node,
 		max:      o.MaxConns,
 		weight:   o.Weight,
+		total:    zutil.NewInt64(0),
 		failedAt: zutil.NewInt64(0),
 		cooldown: zutil.NewInt64(o.Cooldown),
 	}
