@@ -41,6 +41,16 @@ func DoRetry(sum int, fn func() error, opt ...func(*RetryConf)) (err error) {
 
 	i, now := 1, time.Now()
 	for ; ; i++ {
+
+		var interval time.Duration
+		if o.BackOffDelay {
+			interval = BackOffDelay(i, o.MaxRetryInterval)
+		} else {
+			interval = o.Interval
+		}
+
+		time.Sleep(interval)
+
 		if o.maxRetry > 0 && i > o.maxRetry {
 			break
 		}
@@ -53,15 +63,6 @@ func DoRetry(sum int, fn func() error, opt ...func(*RetryConf)) (err error) {
 		if err == nil {
 			break
 		}
-
-		var interval time.Duration
-		if o.BackOffDelay {
-			interval = BackOffDelay(i, o.MaxRetryInterval)
-		} else {
-			interval = o.Interval
-		}
-
-		time.Sleep(interval)
 	}
 
 	return
